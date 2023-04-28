@@ -1,8 +1,10 @@
-import Vuex from 'vuex';
-import baseball from './baseball';
+import { createStore } from 'vuex';
+import baseball from './modules/baseball';
+import filters from './modules/filters';
 
-export default new Vuex.Store({
+export default createStore({
   modules: {
-    baseball
+    baseball, 
+    filters,
   },
 });
