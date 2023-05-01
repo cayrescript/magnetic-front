@@ -1,10 +1,11 @@
 <template>
-  <input v-if="isPagination" type="text"
-    class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-    placeholder="Filter..." v-model="filterValue" @input="filterData" id="filter-input" />
+  <input v-if="isPagination" type="text" id="filter-input"
+    class="filter-input"
+    placeholder="Filter..." v-model="filterValue" @input="filterData"
+    aria-label="Filter table" />
 
   <div class="table-container">
-    <table class="custom-table divide-y divide-gray-200">
+    <table class="custom-table divide-y divide-gray-200" aria-label="Data table">
       <thead class="bg-gray-50">
         <tr>
           <th v-for="header in headers" :key="header.key" class="table-header">
@@ -176,6 +177,10 @@ export default {
 </script>
 
 <style scoped>
+.filter-input {
+  @apply w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500;
+}
+
 .table-container {
   @apply overflow-x-auto;
 }
@@ -193,15 +198,11 @@ export default {
 }
 
 .pagination {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
+  @apply flex justify-end items-center;
 }
 
 .footer-table {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  @apply flex items-center justify-between;
 }
 
 .btn-pagination {
@@ -213,7 +214,6 @@ export default {
 }
 
 @media screen and (max-width: 640px) {
-
   .table-header,
   .table-data {
     @apply px-2 py-2;
@@ -221,7 +221,6 @@ export default {
 }
 
 @media screen and (min-width: 641px) and (max-width: 1024px) {
-
   .table-header,
   .table-data {
     @apply px-4 py-3;

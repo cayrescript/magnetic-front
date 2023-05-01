@@ -2,25 +2,25 @@
     <div v-if="filteredHits" class="intro-y box player-box">
         <div class="player-details">
             <div class="player-header">
-                <div class="player-avatar">
+                <div class="player-avatar" aria-label="Player Avatar">
                     {{ getInitials(getName()) }}
                 </div>
-                <div class="player-name">
+                <div class="player-name" aria-label="Player Name">
                     {{ getName() }}
                 </div>
             </div>
             <div class="mt-6 lg:mt-0 flex-1 flex items-center justify-center px-5 border-t lg:border-0 border-slate-200/60 dark:border-darkmode-400 pt-5 lg:pt-0">
-                <div class="text-center rounded-md py-3 mx-4">
+                <div class="text-center rounded-md py-3 mx-4" aria-label="Total Hits">
                     <div class="font-medium text-primary text-xl">{{ getTotalHits() }}</div>
-                    <div class="text-slate-500">Total de hits</div>
+                    <div class="text-slate-500">Total Hits</div>
                 </div>
-                <div class="text-center rounded-md py-3 mx-4">
+                <div class="text-center rounded-md py-3 mx-4" aria-label="Seasons">
                     <div class="font-medium text-primary text-xl">{{ getSeasonsCount() }}</div>
-                    <div class="text-slate-500">Temporadas</div>
+                    <div class="text-slate-500">Seasons</div>
                 </div>
-                <div class="text-center rounded-md py-3 mx-4">
+                <div class="text-center rounded-md py-3 mx-4" aria-label="Highest Rank">
                     <div class="font-medium text-primary text-xl">{{ getHighestRank() }}</div>
-                    <div class="text-slate-500">Maior Ranking</div>
+                    <div class="text-slate-500">Highest Rank</div>
                 </div>
             </div>
         </div>
@@ -33,6 +33,7 @@
 </template>
 
 <script>
+
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
@@ -146,6 +147,8 @@ export default {
 </script>
 
 <style scoped>
+@import 'https://fonts.googleapis.com/css?family=Inter';
+
 .player-box {
     @apply px-5 pt-5 mt-5;
 }

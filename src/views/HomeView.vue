@@ -1,38 +1,46 @@
 <template>
   <div id="app">
-    <h3>Filter by Rank Range:</h3>
-    <section class="filter-section">
-      <RangeSlider v-if="hitsSingleSeason" v-model:minValue="slider.minValue" v-model:maxValue="slider.maxValue" :min="0"
-        :max="maxRank" @update:minValue="slider.minValue = $event" @update:maxValue="slider.maxValue = $event" />
-      <div class="input-control">
-        <label for="selected-ages">
-          Select Ages
-        </label>
-        <MultipleSelect name="selected-ages" :value="selectedAges" :options="uniqueAges.sort()" placeholder="Choose"
-          @input="selectedAges = $event"  />
+    <h1>Data Filtering and Export</h1>
+    <section class="filter-section" aria-labelledby="filters-heading">
+      <h2 id="filters-heading">Filters</h2>
+      <div class="filter-group">
+        <h3>Filter by Rank Range:</h3>
+        <RangeSlider v-if="hitsSingleSeason" v-model:minValue="slider.minValue" v-model:maxValue="slider.maxValue"
+          :min="0" :max="maxRank" @update:minValue="slider.minValue = $event" @update:maxValue="slider.maxValue = $event"
+          aria-label="Rank range slider" />
       </div>
-
-      <div class="flex-row items-center space-x-4 my-8">
+      <div class="filter-group">
+        <label for="selected-ages">Select Ages:</label>
+        <MultipleSelect name="selected-ages" :value="selectedAges" :options="uniqueAges.sort()" placeholder="Choose"
+          @input="selectedAges = $event" />
+      </div>
+      <div class="filter-group flex-row items-center space-x-4 my-8">
         <h3>Filter by Hits Range:</h3>
         <label for="minHits" class="text-sm font-semibold">Min Hits:</label>
         <input id="minHits" type="number" v-model="minHits" min="0" @input="updateHitsRange"
           class="w-20 border border-gray-300 rounded px-2 py-1 text-sm" />
         <label for="maxHits" class="text-sm font-semibold">Max Hits:</label>
-        <input v-model="maxHits" type="number" class="border border-gray-300 rounded-md p-2 w-20"
+        <input id="maxHits" v-model="maxHits" type="number" class="border border-gray-300 rounded-md p-2 w-20"
           placeholder="Max Hits" />
-        <button @click="fillMaxHits" class="bg-blue-500 text-white px-2 py-1 rounded-md ml-2 tiny">
+        <button @click="fillMaxHits" class="bg-blue-500 text-white px-2 py-1 rounded-md ml-2 tiny"
+          aria-label="Set max hits">
           max
         </button>
       </div>
-      <router-view :player="selectedPlayer" />
-
     </section>
-    <DataExport :data="filteredAndSortedData" />
-    <TableView v-if="hitsSingleSeason.length > 0" :headers="headers" :items="filteredAndSortedData"
-      @sort="updateSortConfig" @filter="updateFilterValue" />
-    <Loading v-else="hitsSingleSeason" />
+    <section aria-labelledby="data-export-heading">
+      <h2 id="data-export-heading">Data Export</h2>
+      <DataExport :data="filteredAndSortedData" />
+    </section>
+    <section aria-labelledby="table-heading">
+      <h2 id="table-heading">Table View</h2>
+      <TableView v-if="hitsSingleSeason.length > 0" :headers="headers" :items="filteredAndSortedData"
+        @sort="updateSortConfig" @filter="updateFilterValue" />
+      <Loading v-else="hitsSingleSeason" />
+    </section>
   </div>
 </template>
+
 
 <script>
 import { ref, watch, computed } from 'vue';
