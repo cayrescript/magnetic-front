@@ -8,30 +8,28 @@
         <label for="selected-ages">
           Select Ages
         </label>
-        <MultipleSelect name="selected-ages" :value="selectedAges" :options="uniqueAges" placeholder="Select ages"
+        <MultipleSelect name="selected-ages" :value="selectedAges" :options="uniqueAges" placeholder="Choose"
           @change="selectedAges = $event" />
       </div>
-      <h3>Filter by Hits Range:</h3>
-      <div class="flex items-center space-x-4">
+
+      <div class="flex-row items-center space-x-4 my-8">
+        <h3>Filter by Hits Range:</h3>
         <label for="minHits" class="text-sm font-semibold">Min Hits:</label>
         <input id="minHits" type="number" v-model="minHits" min="0" @input="updateHitsRange"
           class="w-20 border border-gray-300 rounded px-2 py-1 text-sm" />
-        <div class="flex items-center">
-          <label for="maxHits" class="text-sm font-semibold">Max Hits:</label>
-          <input v-model="maxHits" type="number" class="border border-gray-300 rounded-md p-2 w-20"
-            placeholder="Max Hits" />
-          <button @click="fillMaxHits" class="bg-blue-500 text-white px-2 py-1 rounded-md ml-2">
-            Fill Max Hits
-          </button>
-        </div>
-        <router-view :player="selectedPlayer" />
-
+        <label for="maxHits" class="text-sm font-semibold">Max Hits:</label>
+        <input v-model="maxHits" type="number" class="border border-gray-300 rounded-md p-2 w-20"
+          placeholder="Max Hits" />
+        <button @click="fillMaxHits" class="bg-blue-500 text-white px-2 py-1 rounded-md ml-2 tiny">
+          max
+        </button>
       </div>
+      <router-view :player="selectedPlayer" />
 
     </section>
-
+    <DataExport :data="filteredAndSortedData" />
     <TableView v-if="hitsSingleSeason.length > 0" :headers="headers" :items="filteredAndSortedData"
-      @sort="updateSortConfig" @filter="updateFilterValue"   :linkKey="'player'" />
+      @sort="updateSortConfig" @filter="updateFilterValue" />
     <Loading else="hitsSingleSeason" />
   </div>
 </template>
@@ -44,13 +42,15 @@ import RangeSlider from '../components/RangeSlider/RangeSlider.vue';
 import Loading from '../components/Loading.vue';
 import MultipleSelect from '../components/MultipleSelect.vue';
 import { useRoute, useRouter } from 'vue-router';
+import DataExport from '../components/DataExport.vue';
 
 export default {
   components: {
-    TableView,
-    RangeSlider,
+    DataExport,
     Loading,
-    MultipleSelect
+    MultipleSelect,
+    RangeSlider,
+    TableView,
   },
   setup() {
     const store = useStore();
@@ -179,7 +179,6 @@ export default {
       { immediate: true }
     );
 
-
     watch(
       () => route.params.id,
       (id) => {
@@ -192,7 +191,9 @@ export default {
       }
     );
 
-    fetchHitsSingleSeason();
+    if (hitsSingleSeason.value.length === 0) {
+      fetchHitsSingleSeason();
+    }
 
     return {
       hitsSingleSeason,
@@ -210,7 +211,6 @@ export default {
       fillMaxHits,
       selectPlayer,
       selectedPlayer,
-      
     };
   },
 };
@@ -218,10 +218,4 @@ export default {
 
 
 <style>
-.input-control {
-  display: flex;
-  flex-direction: column;
-}
-
-.selected-ages {}
 </style>

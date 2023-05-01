@@ -35,7 +35,7 @@ export default {
     computed: {
         selectedItemsText() {
             if (this.selectedItems.length === 0) {
-                return 'Select age values';
+                return 'Choose';
             } else {
                 return this.selectedItems.join(', ');
             }
@@ -73,7 +73,7 @@ export default {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    background-color: #f9f9f9;
+    background-color: 0;
 }
 
 .multiple-select__options {
