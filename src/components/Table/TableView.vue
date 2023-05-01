@@ -1,5 +1,5 @@
 <template>
-  <input type="text"
+  <input v-if="isPagination" type="text"
     class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
     placeholder="Filter..." v-model="filterValue" @input="filterData" id="filter-input" />
 
@@ -33,7 +33,7 @@
         </tr>
       </tbody>
     </table>
-    <div class="footer-table">
+    <div v-if="showFooter && isPagination " class="footer-table">
       <div class="items-per-page-control mt-4">
         <label for="items-per-page" class="mr-2">Itens por página:</label>
         <select id="items-per-page" v-model.number="itemsPerPage"
@@ -81,6 +81,10 @@ export default {
       type: Number,
       default: 10,
     },
+    isPagination: {
+      type: Boolean,
+      default: true,
+    }
   },
   emits: ['sort', 'filter'],
 
@@ -125,10 +129,15 @@ export default {
     });
 
     const paginatedItems = computed(() => {
-      if(items.value){
+      if (!props.isPagination) {
+        return items.value;
+      }
+      if (items.value && items.value.length > 0) {
         const startIndex = (currentPage.value - 1) * itemsPerPage.value;
         const endIndex = startIndex + itemsPerPage.value;
         return filteredItems.value.slice(startIndex, endIndex);
+      } else {
+        return [];
       }
     });
 
@@ -142,6 +151,10 @@ export default {
       }
     };
 
+    const showFooter = computed(() => {
+      return items.value.length >= itemsPerPage.value;
+    });
+
     watchEffect(() => {
       filteredItems.value;
       currentPage.value = 1;
@@ -154,7 +167,8 @@ export default {
       itemsPerPage,
       goToNextPage,
       filteredItems,
-      filterValue
+      filterValue,
+      showFooter
     };
   }
 };

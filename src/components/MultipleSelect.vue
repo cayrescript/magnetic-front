@@ -36,7 +36,7 @@ export default {
             isOpen: false,
         };
     },
-    emits: ['change'],
+    emits: ['input'],
     computed: {
         selectedItemsText() {
             if (this.selectedItems.length === 0) {
@@ -64,8 +64,8 @@ export default {
         },
         clearSelectedItems() {
             this.selectedItems = [];
-            this.isOpen = !!this.selectedItems;
-            this.$emit('input', this.selectedItems);
+            this.isOpen = false;
+            this.$emit('input', this.selectedItems); // Emitindo o evento 'input' com um array vazio
         }
     },
 };

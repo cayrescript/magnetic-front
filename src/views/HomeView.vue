@@ -9,7 +9,7 @@
           Select Ages
         </label>
         <MultipleSelect name="selected-ages" :value="selectedAges" :options="uniqueAges.sort()" placeholder="Choose"
-          @change="selectedAges = $event" />
+          @input="selectedAges = $event"  />
       </div>
 
       <div class="flex-row items-center space-x-4 my-8">
@@ -30,7 +30,7 @@
     <DataExport :data="filteredAndSortedData" />
     <TableView v-if="hitsSingleSeason.length > 0" :headers="headers" :items="filteredAndSortedData"
       @sort="updateSortConfig" @filter="updateFilterValue" />
-    <Loading else="hitsSingleSeason" />
+    <Loading v-else="hitsSingleSeason" />
   </div>
 </template>
 
