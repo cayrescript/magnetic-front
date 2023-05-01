@@ -1,86 +1,82 @@
 <template>
-        <div v-if="filteredHits" class="intro-y box player-box">
-            <div class="player-details">
-                <div class="player-header">
-                    <div class="player-avatar">
-                        {{ getInitials(getName()) }}
-                    </div>
-                    <div class="player-name">
-                        {{ getName() }}
-                    </div>
+    <div v-if="filteredHits" class="intro-y box player-box">
+        <div class="player-details">
+            <div class="player-header">
+                <div class="player-avatar">
+                    {{ getInitials(getName()) }}
                 </div>
-                <div class="player-season-details">
-                    <div class="section-title">Player Season Details</div>
-                    <div class="player-info">
-                        <div class="info-row">
-                            <p class="info-label">Rank:</p> {{ getPlayerRank() }}
-                        </div>
-                        <div class="info-row">
-                            <p class="info-label">Age That Year:</p>{{ getPlayerAgeThatYear() }}
-                        </div>
-                        <div class="info-row">
-                            <p class="info-label">Player Hits:</p>
-                            {{ getPlayerHits() }}
-                        </div>
-                        <div class="info-row">
-                            <p class="info-label">Player Bats:</p>
-                            {{ getBats() }}
-                        </div>
-                    </div>
+                <div class="player-name">
+                    {{ getName() }}
                 </div>
             </div>
-
-            <div class="hits-per-season">
-                <h3>Hits por Temporada</h3>
-                <ul>
-                    <li v-for="hit in filteredHits" :key="hit.id">
-                        {{ hit.season }}: {{ hit.hits }}
-                    </li>
-                </ul>
+            <div class="mt-6 lg:mt-0 flex-1 flex items-center justify-center px-5 border-t lg:border-0 border-slate-200/60 dark:border-darkmode-400 pt-5 lg:pt-0">
+                <div class="text-center rounded-md py-3 mx-4">
+                    <div class="font-medium text-primary text-xl">{{ getTotalHits() }}</div>
+                    <div class="text-slate-500">Total de hits</div>
+                </div>
+                <div class="text-center rounded-md py-3 mx-4">
+                    <div class="font-medium text-primary text-xl">{{ getSeasonsCount() }}</div>
+                    <div class="text-slate-500">Temporadas</div>
+                </div>
+                <div class="text-center rounded-md py-3 mx-4">
+                    <div class="font-medium text-primary text-xl">{{ getHighestRank() }}</div>
+                    <div class="text-slate-500">Maior Ranking</div>
+                </div>
             </div>
         </div>
+       
+        <TableView v-if="filteredHits.length > 0" :headers="headers" :items="sortedHits" @sort="updateSortConfig" />
 
-        <div v-else>
-            <p>Loading player details...</p>
-        </div>
+    </div>
+
+    <div v-else>
+        <p>Loading player details...</p>
+    </div>
 </template>
 
 <script>
-import { computed, onMounted, watch } from 'vue';
+import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router';
 import { useStore } from 'vuex';
+import { getPlayerNameConcat } from '../utils';
+import TableView from '../components/Table/TableView.vue';
 
 export default {
+    components: {
+        TableView,
+    },
     setup() {
+
         const route = useRoute();
         const store = useStore();
-        const playerId = Number(route.params.id);
-        
+        const playerNameQuery = route.params.player;
         const hitsSingleSeason = computed(() => store.getters['baseball/getHitsSingleSeason']);
         const fetchHitsSingleSeason = () => store.dispatch('baseball/fetchHitsSingleSeason');
-    
+
+
         const filteredHits = computed(() => {
             if (!hitsSingleSeason.value || hitsSingleSeason.value.length === 0) return [];
 
-            return hitsSingleSeason.value.filter((hit) => {
-                return hit.id === playerId;
+            let onlyHitsOfPlayer = hitsSingleSeason.value.filter((hit) => {
+                return getPlayerNameConcat(hit.player) === playerNameQuery;
             });
+            return onlyHitsOfPlayer;
         });
 
         const getName = () => {
             return filteredHits.value.length ? filteredHits.value[0].player : '';
         };
 
-        const getPlayerRank = () => {
-            return filteredHits.value.length ? filteredHits.value[0].rank : '';
+        const getTotalHits = () => {
+            return filteredHits.value.reduce((total, hit) => total + hit.hits, 0);
         };
 
-        const getPlayerAgeThatYear = () => {
-            return filteredHits.value.length ? filteredHits.value[0].agethatyear : '';
+        const getSeasonsCount = () => {
+            return filteredHits.value.length;
         };
 
-        const getPlayerHits = () => {
-            return filteredHits.value.length ? filteredHits.value[0].hits : '';
+        const getHighestRank = () => {
+            return Math.max(...filteredHits.value.map(hit => hit.rank));
         };
 
         const getBats = () => {
@@ -96,18 +92,55 @@ export default {
                 .toUpperCase();
         };
 
+        const headers = computed(() => [
+            { key: 'rank', label: 'Rank' },
+            { key: 'year', label: 'Year' },
+            { key: 'agethatyear', label: 'Age That Year' },
+            { key: 'hits', label: 'Hits' },
+        ]);
+
         if (hitsSingleSeason.value.length === 0) {
             fetchHitsSingleSeason();
         }
+        const sortConfig = ref({
+            sortedKey: '',
+            sortOrder: 'asc',
+        });
+        const sortedHits = computed(() => {
+            let data = filteredHits.value;
+
+            if (sortConfig.value.sortedKey) {
+                data.sort((a, b) => {
+                    const aValue = a[sortConfig.value.sortedKey];
+                    const bValue = b[sortConfig.value.sortedKey];
+
+                    if (aValue < bValue) return sortConfig.value.sortOrder === 'asc' ? -1 : 1;
+                    if (aValue > bValue) return sortConfig.value.sortOrder === 'asc' ? 1 : -1;
+                    return 0;
+                });
+            }
+
+            return data;
+        });
+        const updateSortConfig = ({ columnKey, sortOrder }) => {
+            sortConfig.value = {
+                sortedKey: columnKey,
+                sortOrder,
+            };
+        };
 
         return {
             filteredHits,
-            getName,
-            getPlayerRank,
-            getPlayerAgeThatYear,
-            getPlayerHits,
             getBats,
+            getHighestRank,
             getInitials,
+            getName,
+            getSeasonsCount,
+            getTotalHits,
+            headers,
+            sortedHits,
+            TableView,
+            updateSortConfig,
         };
     },
 };
@@ -132,7 +165,7 @@ export default {
 }
 
 .player-name {
-    @apply w-24 sm:w-40 truncate sm:whitespace-normal font-medium text-lg ml-5;
+    @apply w-24 sm:w-40 sm:whitespace-normal font-medium text-lg ml-5;
 }
 
 .player-season-details {

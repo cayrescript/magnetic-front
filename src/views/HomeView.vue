@@ -43,6 +43,7 @@ import Loading from '../components/Loading.vue';
 import MultipleSelect from '../components/MultipleSelect.vue';
 import { useRoute, useRouter } from 'vue-router';
 import DataExport from '../components/DataExport.vue';
+import { getPlayerNameConcat } from "../utils";
 
 export default {
   components: {
@@ -80,7 +81,6 @@ export default {
       }
     };
 
-
     const selectedAges = ref([]);
     const filterValue = ref('');
     const sortConfig = ref({
@@ -90,10 +90,12 @@ export default {
 
     const selectedPlayer = ref(null);
 
+
     const selectPlayer = (player) => {
       selectedPlayer.value = player;
-      router.push({ name: 'PlayerDetail', params: { id: player.id } });
+      router.push({ name: 'Details', params: { player: getPlayerNameConcat(player.player) } });
     };
+
     const headers = computed(() => [
       { key: 'id', label: 'Id' },
       { key: 'rank', label: 'Rank' },
@@ -179,18 +181,6 @@ export default {
       { immediate: true }
     );
 
-    watch(
-      () => route.params.id,
-      (id) => {
-        if (id) {
-          const player = hitsSingleSeason.value.find((player) => player.id === parseInt(id));
-          selectedPlayer.value = player;
-        } else {
-          selectedPlayer.value = null;
-        }
-      }
-    );
-
     if (hitsSingleSeason.value.length === 0) {
       fetchHitsSingleSeason();
     }
@@ -215,7 +205,3 @@ export default {
   },
 };
 </script>
-
-
-<style>
-</style>

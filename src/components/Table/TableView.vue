@@ -1,10 +1,9 @@
 <template>
-  <input type="text"
+  <input v-if="filterValue" type="text"
     class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
     placeholder="Filter..." v-model="filterValue" @input="filterData" id="filter-input" />
 
   <div class="table-container">
-
     <table class="custom-table divide-y divide-gray-200">
       <thead class="bg-gray-50">
         <tr>
@@ -23,7 +22,7 @@
         <tr v-for="item in items" :key="item.id">
           <td v-for="header in headers" :key="header.key" class="table-data">
             <div v-if="header.key === 'player'">
-              <router-link :to="{ name: 'PlayerDetails', params: { id: item.id } }">
+              <router-link :to="{ name: 'Details', params: { player: getPlayerNameConcat(item.player) } }">
                 {{ item.player }}
               </router-link>
             </div>
@@ -75,6 +74,9 @@ export default {
     filterData() {
       this.$emit('filter', this.filterValue);
     },
+    getPlayerNameConcat(name){
+     return name.toLocaleLowerCase().replace(/\s/g, '-') 
+    }
   },
 };
 
