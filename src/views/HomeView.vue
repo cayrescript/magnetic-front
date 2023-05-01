@@ -8,7 +8,7 @@
         <label for="selected-ages">
           Select Ages
         </label>
-        <MultipleSelect name="selected-ages" :value="selectedAges" :options="uniqueAges" placeholder="Choose"
+        <MultipleSelect name="selected-ages" :value="selectedAges" :options="uniqueAges.sort()" placeholder="Choose"
           @change="selectedAges = $event" />
       </div>
 

@@ -24,9 +24,7 @@
                 </div>
             </div>
         </div>
-       
         <TableView v-if="filteredHits.length > 0" :headers="headers" :items="sortedHits" @sort="updateSortConfig" />
-
     </div>
 
     <div v-else>

@@ -12,10 +12,14 @@
             </div>
         </transition>
     </div>
+    <button v-if="selectedItems.length > 0" @click="clearSelectedItems" class="btn-clear ml-2">
+        Limpar
+    </button>
 </template>
   
 <script>
 export default {
+    inheritAttrs: false,
     props: {
         options: {
             type: Array,
@@ -32,6 +36,7 @@ export default {
             isOpen: false,
         };
     },
+    emits: ['change'],
     computed: {
         selectedItemsText() {
             if (this.selectedItems.length === 0) {
@@ -57,37 +62,42 @@ export default {
         isSelected(option) {
             return this.selectedItems.includes(option);
         },
+        clearSelectedItems() {
+            this.selectedItems = [];
+            this.isOpen = !!this.selectedItems;
+            this.$emit('input', this.selectedItems);
+        }
     },
 };
 </script>
-  
+
 <style scoped>
 .multiple-select {
-    position: relative;
-    display: inline-block;
     cursor: pointer;
+    display: inline-block;
+    position: relative;
     user-select: none;
 }
 
 .multiple-select__selected {
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
     background-color: 0;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    padding: 10px;
 }
 
 .multiple-select__options {
-    position: absolute;
-    left: 0;
-    right: 0;
-    margin-top: 2px;
-    padding: 10px 0;
-    border: 1px solid #ccc;
-    border-radius: 4px;
     background-color: #f9f9f9;
+    border-radius: 4px;
+    border: 1px solid #ccc;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    left: 0;
+    margin-top: 2px;
     max-height: 200px;
     overflow-y: auto;
+    padding: 10px 0;
+    position: absolute;
+    right: 0;
     z-index: 100;
 }
 
@@ -112,5 +122,13 @@ export default {
 .fade-leave-to {
     opacity: 0;
 }
+
+.btn-clear {
+    @apply py-1 px-2 rounded bg-red-500 text-white;
+}
+
+.btn-clear:hover {
+    @apply bg-blue-700;
+}
 </style>
-  
+      

@@ -1,5 +1,5 @@
 <template>
-  <input v-if="filterValue" type="text"
+  <input type="text"
     class="w-full mb-4 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
     placeholder="Filter..." v-model="filterValue" @input="filterData" id="filter-input" />
 
@@ -19,7 +19,7 @@
         </tr>
       </thead>
       <tbody class="bg-white divide-y divide-gray-200">
-        <tr v-for="item in items" :key="item.id">
+        <tr v-for="item in paginatedItems" :key="item.id">
           <td v-for="header in headers" :key="header.key" class="table-data">
             <div v-if="header.key === 'player'">
               <router-link :to="{ name: 'Details', params: { player: getPlayerNameConcat(item.player) } }">
@@ -33,10 +33,36 @@
         </tr>
       </tbody>
     </table>
+    <div class="footer-table">
+      <div class="items-per-page-control mt-4">
+        <label for="items-per-page" class="mr-2">Itens por página:</label>
+        <select id="items-per-page" v-model.number="itemsPerPage"
+          class="bg-white border border-gray-300 rounded py-1 pl-2 pr-6">
+          <option value="5">5</option>
+          <option value="10">10</option>
+          <option value="20">20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+      <div class="pagination mt-4">
+        <button @click="currentPage = Math.max(1, currentPage - 1)" :disabled="currentPage === 1" class="btn-pagination">
+          Anterior
+        </button>
+        <span class="mx-2">{{ currentPage }}</span>
+        <button @click="goToNextPage" :disabled="currentPage === lastPage || items.length <= itemsPerPage"
+          class="btn-pagination">
+          Próximo
+        </button>
+      </div>
+
+    </div>
+
   </div>
 </template>
 
 <script>
+import { computed, ref, watchEffect, toRefs } from 'vue';
+
 export default {
   props: {
     headers: {
@@ -51,12 +77,17 @@ export default {
       type: String,
       default: '',
     },
+    perPage: {
+      type: Number,
+      default: 10,
+    },
   },
+  emits: ['sort', 'filter'],
+
   data() {
     return {
       sortedKey: '',
       sortOrder: 'asc',
-      filterValue: '',
     };
   },
   methods: {
@@ -74,10 +105,58 @@ export default {
     filterData() {
       this.$emit('filter', this.filterValue);
     },
-    getPlayerNameConcat(name){
-     return name.toLocaleLowerCase().replace(/\s/g, '-') 
+    getPlayerNameConcat(name) {
+      return name.toLocaleLowerCase().replace(/\s/g, '-')
     }
   },
+  setup(props) {
+    const { perPage, items } = toRefs(props);
+    const currentPage = ref(1);
+    const itemsPerPage = ref(10);
+    const filterValue = ref('');
+
+    const filteredItems = computed(() => {
+      if (!filterValue.value) return items.value;
+      return items.value.filter((item) =>
+        Object.values(item).some((value) =>
+          String(value).toLowerCase().includes(filterValue.value.toLowerCase())
+        )
+      );
+    });
+
+    const paginatedItems = computed(() => {
+      if(items.value){
+        const startIndex = (currentPage.value - 1) * itemsPerPage.value;
+        const endIndex = startIndex + itemsPerPage.value;
+        return filteredItems.value.slice(startIndex, endIndex);
+      }
+    });
+
+    const lastPage = computed(() => {
+      return Math.ceil(filteredItems.value.length / perPage.value);
+    });
+
+    const goToNextPage = () => {
+      if (currentPage.value * itemsPerPage.value < filteredItems.value.length) {
+        currentPage.value++;
+      }
+    };
+
+    watchEffect(() => {
+      filteredItems.value;
+      currentPage.value = 1;
+    });
+
+    return {
+      currentPage,
+      lastPage,
+      paginatedItems,
+      itemsPerPage,
+      goToNextPage,
+      filteredItems,
+      filterValue
+    };
+  }
 };
 
 </script>
@@ -97,6 +176,26 @@ export default {
 
 .table-data {
   @apply px-6 py-4 whitespace-nowrap;
+}
+
+.pagination {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.footer-table {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.btn-pagination {
+  @apply font-bold py-2 px-4 rounded;
+}
+
+.btn-pagination:disabled {
+  @apply bg-gray-300 text-gray-500 cursor-not-allowed;
 }
 
 @media screen and (max-width: 640px) {
