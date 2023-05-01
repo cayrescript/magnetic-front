@@ -96,4 +96,6 @@ export const prepareHitsByYearData = (hitsData) => {
   };
 };
 
-
+export const getPlayerNameConcat = (name) => {
+  return name.toLocaleLowerCase().replace(/\s/g, '-')
+}
